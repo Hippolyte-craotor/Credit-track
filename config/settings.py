@@ -17,6 +17,21 @@ def env(name, default=None):
 SECRET_KEY = env("DJANGO_SECRET_KEY", "django-insecure-agriconnect-dev-change-me")
 DEBUG = env("DJANGO_DEBUG", "1") == "1"
 ALLOWED_HOSTS = [h.strip() for h in env("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,testserver").split(",") if h.strip()]
+RENDER_EXTERNAL_HOSTNAME = env("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in env("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
+if RENDER_EXTERNAL_HOSTNAME:
+    render_origin = f"https://{RENDER_EXTERNAL_HOSTNAME}"
+    if render_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(render_origin)
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -33,6 +48,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -62,7 +78,14 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 DB_ENGINE = env("DB_ENGINE", "sqlite").lower()
-if DB_ENGINE == "postgres" or env("POSTGRES_DB"):
+DATABASE_URL = env("DATABASE_URL")
+if DATABASE_URL:
+    import dj_database_url
+
+    DATABASES = {
+        "default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=env("DB_SSL_REQUIRE", "1") == "1")
+    }
+elif DB_ENGINE == "postgres" or env("POSTGRES_DB"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -96,6 +119,14 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
