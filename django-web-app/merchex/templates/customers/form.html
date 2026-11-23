@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - CreditTrack{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  <h1 class="text-2xl font-bold mb-1">{{ title }}</h1>
+  <p class="text-slate-600 mb-6">Renseignez uniquement les informations utiles.</p>
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% for field in form %}
+        <div>
+          <label class="block text-sm font-medium mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors|striptags }}</p>{% endif %}
+        </div>
+      {% endfor %}
+      <div class="flex gap-3 pt-2">
+        <a href="{% if customer %}{% url 'customers:detail' customer.pk %}{% else %}{% url 'customers:list' %}{% endif %}" class="px-4 py-2.5 rounded-lg border border-slate-300">Annuler</a>
+        <button class="px-4 py-2.5 rounded-lg bg-brand-800 text-white font-medium hover:bg-brand-700">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

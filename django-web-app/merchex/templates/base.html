@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CreditTrack{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eef7f1',100:'#d6ebdd',200:'#b0d7bf',300:'#7fbf99',400:'#4fa373',500:'#2f855a',600:'#236947',700:'#1c5339',800:'#184430',900:'#143828' }
+          }
+        }
+      }
+    }
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <style>
+    [x-cloak]{display:none!important}
+    body{background:#f6f7f8}
+  </style>
+</head>
+<body class="text-slate-800">
+<div x-data="{sidebar:false}" class="min-h-screen">
+  <div class="lg:hidden flex items-center justify-between bg-brand-900 text-white px-4 py-3">
+    <button @click="sidebar=true" class="p-2 rounded hover:bg-brand-800" aria-label="Menu">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="{% url 'dashboard:index' %}" class="font-semibold tracking-wide">CreditTrack</a>
+    <a href="{% url 'credits:create' %}" class="bg-white text-brand-900 px-3 py-1.5 rounded font-medium text-sm">+ Crédit</a>
+  </div>
+
+  <div x-cloak x-show="sidebar" class="fixed inset-0 z-40 lg:hidden">
+    <div class="absolute inset-0 bg-black/40" @click="sidebar=false"></div>
+    <aside class="absolute left-0 top-0 bottom-0 w-72 bg-brand-900 text-white p-4">
+      <div class="flex items-center justify-between mb-6">
+        <span class="text-xl font-bold">CreditTrack</span>
+        <button @click="sidebar=false" class="p-2 rounded hover:bg-brand-800">✕</button>
+      </div>
+      {% include "partials/nav.html" %}
+    </aside>
+  </div>
+
+  <div class="lg:flex">
+    <aside class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-brand-900 text-white p-5">
+      <a href="{% url 'dashboard:index' %}" class="text-2xl font-bold tracking-tight mb-8">CreditTrack</a>
+      {% include "partials/nav.html" %}
+      <div class="mt-auto pt-6 border-t border-brand-700 text-sm text-brand-100">
+        <div class="font-medium text-white">{{ request.user.full_name }}</div>
+        <div class="truncate">{{ request.user.email }}</div>
+      </div>
+    </aside>
+
+    <main class="flex-1 lg:ml-64">
+      <header class="hidden lg:flex items-center justify-between gap-4 px-8 py-5 bg-white border-b border-slate-200">
+        <form action="{% url 'customers:list' %}" method="get" class="w-full max-w-lg">
+          <input name="q" value="{{ request.GET.q|default:'' }}" placeholder="Rechercher un client ou un numéro..." class="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500">
+        </form>
+        <div class="flex items-center gap-3">
+          <a href="{% url 'credits:payment_create' %}" class="px-4 py-2.5 rounded-lg border border-brand-700 text-brand-800 font-medium hover:bg-brand-50">Encaisser</a>
+          <a href="{% url 'credits:create' %}" class="px-4 py-2.5 rounded-lg bg-brand-800 text-white font-medium hover:bg-brand-700">+ Nouveau crédit</a>
+        </div>
+      </header>
+
+      <div class="px-4 lg:px-8 py-6 max-w-7xl mx-auto">
+        {% if messages %}
+          <div class="space-y-2 mb-5">
+            {% for message in messages %}
+              <div class="px-4 py-3 rounded-lg text-sm {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-emerald-50 text-emerald-800 border border-emerald-200{% endif %}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

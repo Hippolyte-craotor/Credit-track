@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Nouveau crédit - CreditTrack{% endblock %}
+{% block content %}
+<div class="max-w-3xl">
+  <h1 class="text-2xl font-bold mb-1">Nouveau crédit</h1>
+  <p class="text-slate-600 mb-6">Enregistrez une vente à crédit en quelques champs.</p>
+  <div class="bg-white border border-slate-200 rounded-xl p-6" x-data="{total: {{ form.total_amount.value|default:0 }}, initial: {{ form.initial_payment.value|default:0 }}, get remaining(){ const t=parseInt(this.total||0,10); const i=parseInt(this.initial||0,10); return Math.max(t-i,0); }}">
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{{ form.non_field_errors }}</div>{% endif %}
+      <div>
+        <label class="block text-sm font-medium mb-1">Client</label>
+        {{ form.customer }}
+        {% if form.customer.errors %}<p class="text-sm text-red-600 mt-1">{{ form.customer.errors|striptags }}</p>{% endif %}
+        <a href="{% url 'customers:create' %}?next={% url 'credits:create' %}" class="text-sm text-brand-700 hover:underline mt-1 inline-block">+ Nouveau client</a>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Marchandises / description</label>
+        {{ form.description }}
+        {% if form.description.errors %}<p class="text-sm text-red-600 mt-1">{{ form.description.errors|striptags }}</p>{% endif %}
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Montant total (FCFA)</label>
+          <input type="number" name="total_amount" min="1" required x-model="total" value="{{ form.total_amount.value|default:'' }}" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500">
+          {% if form.total_amount.errors %}<p class="text-sm text-red-600 mt-1">{{ form.total_amount.errors|striptags }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Payé immédiatement (FCFA)</label>
+          <input type="number" name="initial_payment" min="0" x-model="initial" value="{{ form.initial_payment.value|default:0 }}" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500">
+          {% if form.initial_payment.errors %}<p class="text-sm text-red-600 mt-1">{{ form.initial_payment.errors|striptags }}</p>{% endif %}
+        </div>
+      </div>
+      <div class="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3">
+        <div class="text-sm text-slate-600">Reste à payer</div>
+        <div class="text-2xl font-bold text-brand-900" x-text="new Intl.NumberFormat('fr-FR').format(remaining) + ' FCFA'"></div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Date</label>
+          {{ form.credit_date }}
+          {% if form.credit_date.errors %}<p class="text-sm text-red-600 mt-1">{{ form.credit_date.errors|striptags }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Échéance (facultatif)</label>
+          {{ form.due_date }}
+          {% if form.due_date.errors %}<p class="text-sm text-red-600 mt-1">{{ form.due_date.errors|striptags }}</p>{% endif %}
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Observation (facultatif)</label>
+        {{ form.note }}
+      </div>
+      <div class="flex gap-3 pt-2">
+        <a href="{% url 'credits:list' %}" class="px-4 py-2.5 rounded-lg border border-slate-300">Annuler</a>
+        <button class="px-4 py-2.5 rounded-lg bg-brand-800 text-white font-medium hover:bg-brand-700">Enregistrer le crédit</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord - CreditTrack{% endblock %}
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Tableau de bord</h1>
+    <p class="text-slate-600">Vue rapide de votre activité de crédit.</p>
+  </div>
+  <div class="flex gap-2 sm:hidden">
+    <a href="{% url 'credits:payment_create' %}" class="flex-1 text-center px-4 py-2.5 rounded-lg border border-brand-700 text-brand-800 font-medium">Encaisser</a>
+    <a href="{% url 'credits:create' %}" class="flex-1 text-center px-4 py-2.5 rounded-lg bg-brand-800 text-white font-medium">+ Crédit</a>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white border border-slate-200 rounded-xl p-4">
+    <div class="text-sm text-slate-500">Crédits accordés</div>
+    <div class="text-xl sm:text-2xl font-bold mt-1">{{ total_credits|fcfa }}</div>
+  </div>
+  <div class="bg-white border border-slate-200 rounded-xl p-4">
+    <div class="text-sm text-slate-500">Déjà remboursé</div>
+    <div class="text-xl sm:text-2xl font-bold mt-1 text-brand-800">{{ total_paid|fcfa }}</div>
+  </div>
+  <div class="bg-white border border-slate-200 rounded-xl p-4">
+    <div class="text-sm text-slate-500">Reste à récupérer</div>
+    <div class="text-xl sm:text-2xl font-bold mt-1 text-amber-700">{{ total_remaining|fcfa }}</div>
+  </div>
+  <div class="bg-white border border-slate-200 rounded-xl p-4">
+    <div class="text-sm text-slate-500">Clients endettés</div>
+    <div class="text-xl sm:text-2xl font-bold mt-1">{{ clients_with_debt }}</div>
+  </div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-6">
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold text-lg">Retards de paiement</h2>
+      <a href="{% url 'credits:list' %}?status=overdue" class="text-sm text-brand-700 hover:underline">{{ overdue_count }} en retard</a>
+    </div>
+    {% if overdue_top %}
+      <div class="space-y-3">
+        {% for credit in overdue_top %}
+          <a href="{% url 'credits:detail' credit.pk %}" class="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100">
+            <div>
+              <div class="font-medium">{{ credit.customer.display_name }}</div>
+              <div class="text-sm text-slate-500">{{ credit.reference }} • Échéance {{ credit.due_date|date:"d/m/Y" }}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-semibold text-red-700">{{ credit.remaining_amount|fcfa }}</div>
+              <div class="text-xs text-red-600">En retard</div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-slate-500">Aucun retard de paiement. Bonne nouvelle.</p>
+    {% endif %}
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold text-lg">Dernières opérations</h2>
+      <a href="{% url 'reports:history' %}" class="text-sm text-brand-700 hover:underline">Voir tout</a>
+    </div>
+    {% if recent_operations %}
+      <div class="space-y-3">
+        {% for op in recent_operations %}
+          <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+            <div>
+              <div class="font-medium text-sm">{{ op.get_action_display }}</div>
+              <div class="text-sm text-slate-600">{{ op.summary }}</div>
+            </div>
+            <div class="text-xs text-slate-500 whitespace-nowrap">{{ op.created_at|date:"d/m H:i" }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-slate-500">Aucune opération pour le moment.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

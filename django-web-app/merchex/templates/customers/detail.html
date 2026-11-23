@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ customer.display_name }} - CreditTrack{% endblock %}
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+  <div>
+    <a href="{% url 'customers:list' %}" class="text-sm text-brand-700 hover:underline">← Clients</a>
+    <h1 class="text-2xl font-bold mt-1">{{ customer.display_name }}</h1>
+    <p class="text-slate-600">{{ customer.phone|default:"Pas de téléphone" }}{% if customer.address %} • {{ customer.address }}{% endif %}</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'customers:edit' customer.pk %}" class="px-4 py-2.5 rounded-lg border border-slate-300">Modifier</a>
+    <a href="{% url 'credits:create' %}?customer={{ customer.pk }}" class="px-4 py-2.5 rounded-lg bg-brand-800 text-white font-medium hover:bg-brand-700">+ Nouveau crédit</a>
+  </div>
+</div>
+
+<div class="bg-white border border-slate-200 rounded-xl p-5 mb-6">
+  <div class="text-sm text-slate-500">Solde total restant</div>
+  <div class="text-3xl font-bold {% if total_remaining > 0 %}text-amber-700{% else %}text-brand-800{% endif %}">{{ total_remaining|fcfa }}</div>
+</div>
+
+<div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+  <div class="px-5 py-4 border-b font-semibold">Crédits</div>
+  {% for credit in credits %}
+    <div class="px-5 py-4 border-b last:border-0 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <div class="font-medium">{{ credit.reference }} — {{ credit.description }}</div>
+        <div class="text-sm text-slate-500">{{ credit.credit_date|date:"d/m/Y" }} • Total {{ credit.total_amount|fcfa }} • Payé {{ credit.paid_amount|fcfa }}</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <div class="font-semibold">{{ credit.remaining_amount|fcfa }}</div>
+          <span class="text-xs px-2 py-1 rounded-full {% if credit.status == 'PAID' %}bg-emerald-100 text-emerald-800{% elif credit.status == 'OVERDUE' %}bg-red-100 text-red-800{% elif credit.status == 'PARTIALLY_PAID' %}bg-amber-100 text-amber-800{% elif credit.status == 'VOIDED' %}bg-slate-200 text-slate-700{% else %}bg-blue-100 text-blue-800{% endif %}">{{ credit.get_status_display }}</span>
+        </div>
+        {% if credit.remaining_amount > 0 and not credit.is_voided %}
+          <a href="{% url 'credits:payment_for_credit' credit.pk %}" class="px-3 py-2 rounded-lg border border-brand-700 text-brand-800 text-sm font-medium">Encaisser</a>
+        {% endif %}
+        <a href="{% url 'credits:detail' credit.pk %}" class="text-brand-700 font-medium text-sm">Voir</a>
+      </div>
+    </div>
+  {% empty %}
+    <div class="px-5 py-10 text-center text-slate-500">Aucun crédit pour ce client.</div>
+  {% endfor %}
+</div>
+{% endblock %}

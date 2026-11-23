@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Annuler - CreditTrack{% endblock %}
+{% block content %}
+<div class="max-w-xl">
+  <h1 class="text-2xl font-bold mb-1">Annuler ce {{ type }}</h1>
+  <p class="text-slate-600 mb-6">Cette action ne supprime pas l'historique. Le motif sera enregistré.</p>
+  <div class="bg-white border border-red-200 rounded-xl p-6">
+    <div class="mb-4 p-3 rounded-lg bg-red-50 text-red-800 text-sm">Vous êtes sur le point d'annuler : <strong>{{ object }}</strong>.</div>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-sm font-medium mb-1">Motif d'annulation</label>
+        {{ form.reason }}
+        {% if form.reason.errors %}<p class="text-sm text-red-600 mt-1">{{ form.reason.errors|striptags }}</p>{% endif %}
+      </div>
+      <div class="flex gap-3">
+        <a href="javascript:history.back()" class="px-4 py-2.5 rounded-lg border border-slate-300">Retour</a>
+        <button class="px-4 py-2.5 rounded-lg bg-red-700 text-white font-medium hover:bg-red-600">Confirmer l'annulation</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

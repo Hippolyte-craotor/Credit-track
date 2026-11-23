@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Historique - CreditTrack{% endblock %}
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold">Historique</h1>
+  <p class="text-slate-600">Toutes les opérations sont tracées ici.</p>
+</div>
+<form method="get" class="bg-white border border-slate-200 rounded-xl p-4 mb-4 grid sm:grid-cols-4 gap-3">
+  <input name="q" value="{{ q }}" placeholder="Recherche..." class="rounded-lg border border-slate-300 px-3 py-2.5">
+  <select name="type" class="rounded-lg border border-slate-300 px-3 py-2.5">
+    <option value="">Tous les types</option>
+    {% for value,label in actions %}<option value="{{ value }}" {% if type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <input type="date" name="from" value="{{ start|date:'Y-m-d' }}" class="rounded-lg border border-slate-300 px-3 py-2.5">
+  <div class="flex gap-2"><input type="date" name="to" value="{{ end|date:'Y-m-d' }}" class="w-full rounded-lg border border-slate-300 px-3 py-2.5"><button class="px-4 py-2.5 rounded-lg bg-brand-800 text-white">Filtrer</button></div>
+</form>
+<div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+  {% for log in logs %}
+    <div class="px-5 py-4 border-b last:border-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div>
+        <div class="font-medium">{{ log.get_action_display }}</div>
+        <div class="text-sm text-slate-600">{{ log.summary }}</div>
+        <div class="text-xs text-slate-500">{{ log.entity_type }} #{{ log.entity_id }}{% if log.actor %} • {{ log.actor.full_name }}{% endif %}</div>
+      </div>
+      <div class="text-sm text-slate-500 whitespace-nowrap">{{ log.created_at|date:"d/m/Y H:i" }}</div>
+    </div>
+  {% empty %}
+    <div class="px-5 py-10 text-center text-slate-500">Aucune opération trouvée.</div>
+  {% endfor %}
+</div>
+{% endblock %}

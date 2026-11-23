@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Rapports - CreditTrack{% endblock %}
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Rapports</h1>
+    <p class="text-slate-600">Suivez vos crédits, remboursements et retards.</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'reports:export_pdf' %}?from={{ start|date:'Y-m-d' }}&to={{ end|date:'Y-m-d' }}" class="px-4 py-2.5 rounded-lg border border-slate-300 bg-white">Exporter PDF</a>
+    <a href="{% url 'reports:export_excel' %}?from={{ start|date:'Y-m-d' }}&to={{ end|date:'Y-m-d' }}" class="px-4 py-2.5 rounded-lg bg-brand-800 text-white">Exporter Excel</a>
+  </div>
+</div>
+<form method="get" class="bg-white border border-slate-200 rounded-xl p-4 mb-6 flex flex-col sm:flex-row gap-3">
+  <div class="flex-1">
+    <label class="block text-sm text-slate-500 mb-1">Du</label>
+    <input type="date" name="from" value="{{ start|date:'Y-m-d' }}" class="w-full rounded-lg border border-slate-300 px-3 py-2.5">
+  </div>
+  <div class="flex-1">
+    <label class="block text-sm text-slate-500 mb-1">Au</label>
+    <input type="date" name="to" value="{{ end|date:'Y-m-d' }}" class="w-full rounded-lg border border-slate-300 px-3 py-2.5">
+  </div>
+  <div class="flex items-end"><button class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-brand-800 text-white">Appliquer</button></div>
+</form>
+<div class="grid sm:grid-cols-3 gap-4 mb-6">
+  <div class="bg-white border border-slate-200 rounded-xl p-4"><div class="text-sm text-slate-500">Crédits accordés</div><div class="text-2xl font-bold">{{ total_credits|fcfa }}</div></div>
+  <div class="bg-white border border-slate-200 rounded-xl p-4"><div class="text-sm text-slate-500">Remboursements reçus</div><div class="text-2xl font-bold text-brand-800">{{ total_paid|fcfa }}</div></div>
+  <div class="bg-white border border-slate-200 rounded-xl p-4"><div class="text-sm text-slate-500">Reste dû</div><div class="text-2xl font-bold text-amber-700">{{ total_remaining|fcfa }}</div></div>
+</div>
+<div class="grid lg:grid-cols-2 gap-6">
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <div class="px-5 py-4 border-b font-semibold">Clients les plus endettés</div>
+    {% for c in top_debtors %}
+      <div class="px-5 py-3 border-b last:border-0 flex justify-between"><span>{{ c.display_name }}</span><span class="font-semibold text-amber-700">{{ c.outstanding|fcfa }}</span></div>
+    {% empty %}<div class="px-5 py-8 text-center text-slate-500">Aucune dette en cours.</div>{% endfor %}
+  </div>
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <div class="px-5 py-4 border-b font-semibold">Retards de paiement</div>
+    {% for credit in overdue %}
+      <div class="px-5 py-3 border-b last:border-0 flex justify-between gap-3">
+        <div><div class="font-medium">{{ credit.customer.display_name }}</div><div class="text-sm text-slate-500">{{ credit.reference }} • Échéance {{ credit.due_date|date:"d/m/Y" }}</div></div>
+        <div class="font-semibold text-red-700">{{ credit.remaining_amount|fcfa }}</div>
+      </div>
+    {% empty %}<div class="px-5 py-8 text-center text-slate-500">Aucun retard.</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}

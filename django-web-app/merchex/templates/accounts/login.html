@@ -1,0 +1,22 @@
+{% extends "base_auth.html" %}
+{% block title %}Connexion - CreditTrack{% endblock %}
+{% block content %}
+<h2 class="text-xl font-semibold mb-1">Connexion</h2>
+<p class="text-sm text-slate-600 mb-6">Accédez à votre espace commerçant.</p>
+<form method="post" class="space-y-4">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{{ form.non_field_errors }}</div>{% endif %}
+  {% for field in form %}
+    <div>
+      <label class="block text-sm font-medium mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors|striptags }}</p>{% endif %}
+    </div>
+  {% endfor %}
+  <button class="w-full bg-brand-800 hover:bg-brand-700 text-white font-medium rounded-lg px-4 py-2.5">Se connecter</button>
+</form>
+<div class="mt-5 text-sm text-center space-y-2">
+  <a href="{% url 'accounts:password_reset' %}" class="text-brand-700 hover:underline">Mot de passe oublié ?</a>
+  <div>Pas de compte ? <a href="{% url 'accounts:register' %}" class="text-brand-700 font-medium hover:underline">Créer un compte</a></div>
+</div>
+{% endblock %}

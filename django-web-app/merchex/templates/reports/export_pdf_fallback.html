@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><title>Rapport CreditTrack</title>
+<style>body{font-family:Arial,sans-serif;margin:24px;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:8px;font-size:12px;text-align:left}th{background:#184430;color:#fff}.summary{margin:16px 0}</style></head>
+<body>
+<h1>CreditTrack - Rapport des dettes</h1>
+<div class="summary">Période: {{ start|default:"..." }} au {{ end|default:"..." }}<br>
+Total crédits: {{ totals.total_credits|default:0 }} FCFA | Total remboursé: {{ totals.total_paid|default:0 }} FCFA | Reste: {{ totals.total_remaining|default:0 }} FCFA</div>
+<table><thead><tr><th>Référence</th><th>Client</th><th>Date</th><th>Total</th><th>Payé</th><th>Reste</th><th>Statut</th></tr></thead>
+<tbody>{% for c in credits %}<tr><td>{{ c.reference }}</td><td>{{ c.customer.display_name }}</td><td>{{ c.credit_date|date:"d/m/Y" }}</td><td>{{ c.total_amount }}</td><td>{{ c.paid_amount }}</td><td>{{ c.remaining_amount }}</td><td>{{ c.get_status_display }}</td></tr>{% endfor %}</tbody></table>
+<script>window.print()</script>
+</body></html>

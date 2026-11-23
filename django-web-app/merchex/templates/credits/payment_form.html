@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Encaisser un remboursement - CreditTrack{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  <h1 class="text-2xl font-bold mb-1">Encaisser un remboursement</h1>
+  <p class="text-slate-600 mb-6">Enregistrez un paiement partiel ou total.</p>
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{{ form.non_field_errors }}</div>{% endif %}
+      {% if selected_credit %}
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <div class="text-sm text-slate-500">Crédit</div>
+          <div class="font-medium">{{ selected_credit.customer.display_name }} — {{ selected_credit.reference }}</div>
+          <div class="text-sm text-slate-600">Reste à payer : <span class="font-semibold text-amber-700">{{ selected_credit.remaining_amount|fcfa }}</span></div>
+        </div>
+        {{ form.credit }}
+      {% else %}
+        <div>
+          <label class="block text-sm font-medium mb-1">Crédit</label>
+          {{ form.credit }}
+          {% if form.credit.errors %}<p class="text-sm text-red-600 mt-1">{{ form.credit.errors|striptags }}</p>{% endif %}
+        </div>
+      {% endif %}
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Montant reçu (FCFA)</label>
+          {{ form.amount }}
+          {% if form.amount.errors %}<p class="text-sm text-red-600 mt-1">{{ form.amount.errors|striptags }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Date</label>
+          {{ form.payment_date }}
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Mode</label>
+          {{ form.method }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Note (facultatif)</label>
+          {{ form.note }}
+        </div>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <a href="{% if selected_credit %}{% url 'credits:detail' selected_credit.pk %}{% else %}{% url 'credits:list' %}{% endif %}" class="px-4 py-2.5 rounded-lg border border-slate-300">Annuler</a>
+        <button class="px-4 py-2.5 rounded-lg bg-brand-800 text-white font-medium hover:bg-brand-700">Confirmer le remboursement</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
