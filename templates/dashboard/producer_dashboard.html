@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="container section-sm">
+  <div class="page-header">
+    <div>
+      <h1>Bonjour, {{ user.first_name|default:user.username }}</h1>
+      <p>Gérez vos produits et suivez vos commandes reçues.</p>
+    </div>
+    <a href="{% url 'products:create' %}" class="btn btn-primary">Publier un produit</a>
+  </div>
+
+  <div class="grid grid-3 mb-3">
+    <div class="stat-card"><div class="stat-label">Mes produits</div><div class="stat-value">{{ my_products_count }}</div><div class="muted" style="font-size:.85rem;">{{ active_products_count }} actifs</div></div>
+    <div class="stat-card"><div class="stat-label">Commandes en attente</div><div class="stat-value">{{ pending_orders_count }}</div></div>
+    <div class="stat-card"><div class="stat-label">Ventes (hors annulées)</div><div class="stat-value sm">{{ total_sales|floatformat:0 }} <small style="font-size:.7em;color:var(--muted)">FCFA</small></div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div>
+      <div class="flex-between mb-2"><h2>Mes produits</h2><a href="{% url 'products:list' %}" class="btn btn-sm btn-outline">Catalogue</a></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Produit</th><th>Prix</th><th>Stock</th><th></th></tr></thead>
+          <tbody>
+            {% for p in my_products %}
+              <tr>
+                <td><strong>{{ p.name }}</strong><div class="muted">{{ p.get_category_display }}</div></td>
+                <td>{{ p.price|floatformat:0 }} FCFA</td>
+                <td>{{ p.quantity }} {{ p.get_unit_display }}</td>
+                <td><a href="{% url 'products:detail' p.pk %}" class="btn btn-sm btn-outline">Voir</a></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" class="muted">Vous n'avez pas encore publié de produit.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="flex-between mb-2"><h2>Commandes reçues</h2><a href="{% url 'orders:list' %}" class="btn btn-sm btn-outline">Voir tout</a></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Produit</th><th>Acheteur</th><th>Statut</th></tr></thead>
+          <tbody>
+            {% for order in received_orders %}
+              <tr>
+                <td><a href="{% url 'orders:detail' order.pk %}" class="table-link">#{{ order.id }}</a></td>
+                <td>{{ order.product.name }}</td>
+                <td>{{ order.buyer.username }}</td>
+                <td>{{ order.get_status_display }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" class="muted">Aucune commande reçue.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

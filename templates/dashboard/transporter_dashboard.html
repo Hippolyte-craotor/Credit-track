@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="container section-sm">
+  <div class="page-header">
+    <div>
+      <h1>Bonjour, {{ user.first_name|default:user.username }}</h1>
+      <p>Suivez vos livraisons et les commandes à prendre en charge.</p>
+    </div>
+    <a href="{% url 'orders:list' %}" class="btn btn-primary">Voir les commandes</a>
+  </div>
+
+  <div class="grid grid-3 mb-3">
+    <div class="stat-card"><div class="stat-label">Mes livraisons</div><div class="stat-value">{{ deliveries_count }}</div></div>
+    <div class="stat-card"><div class="stat-label">En cours de livraison</div><div class="stat-value">{{ in_delivery_count }}</div></div>
+    <div class="stat-card"><div class="stat-label">Commandes disponibles</div><div class="stat-value">{{ available_deliveries|length }}</div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div>
+      <h2 class="mb-2">Mes livraisons</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Produit</th><th>Destination</th><th>Statut</th></tr></thead>
+          <tbody>
+            {% for order in deliveries %}
+              <tr>
+                <td><a href="{% url 'orders:detail' order.pk %}" class="table-link">#{{ order.id }}</a></td>
+                <td>{{ order.product.name }}</td>
+                <td>{{ order.delivery_address }}</td>
+                <td>{{ order.get_status_display }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" class="muted">Aucune livraison assignée.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h2 class="mb-2">Commandes à livrer</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Produit</th><th>Lieu</th><th></th></tr></thead>
+          <tbody>
+            {% for order in available_deliveries %}
+              <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.product.name }}</td>
+                <td>{{ order.delivery_address }}</td>
+                <td><a href="{% url 'orders:detail' order.pk %}" class="btn btn-sm btn-outline">Voir</a></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" class="muted">Aucune commande disponible pour le moment.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

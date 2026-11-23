@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="container section-sm">
+  <div class="breadcrumb"><a href="{% url 'products:list' %}">Produits</a> / {{ product.name }}</div>
+  <div class="detail-grid">
+    <div>
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="detail-image">
+      {% else %}
+        <div class="detail-placeholder">{{ product.name|slice:":1"|upper }}</div>
+      {% endif %}
+    </div>
+    <div class="detail-panel">
+      <div class="flex-between mb-1">
+        <span class="badge badge-green">{{ product.get_category_display }}</span>
+        {% if product.in_stock %}
+          <span class="badge badge-yellow">Disponible</span>
+        {% else %}
+          <span class="badge badge-red">Indisponible</span>
+        {% endif %}
+      </div>
+      <h1 style="font-size:clamp(1.6rem,3vw,2.3rem);">{{ product.name }}</h1>
+      <p class="muted">{{ product.location }} • Publié par {{ product.producer.get_full_name|default:product.producer.username }}</p>
+      <div class="price" style="font-size:1.8rem;">{{ product.price|floatformat:0 }} FCFA <small>/ {{ product.get_unit_display }}</small></div>
+
+      <div class="detail-meta">
+        <div class="detail-meta-item"><span>Quantité</span><strong>{{ product.quantity }} {{ product.get_unit_display }}</strong></div>
+        <div class="detail-meta-item"><span>Localisation</span><strong>{{ product.location }}</strong></div>
+        <div class="detail-meta-item"><span>Producteur</span><strong>{{ product.producer.get_full_name|default:product.producer.username }}</strong></div>
+        <div class="detail-meta-item"><span>Publié le</span><strong>{{ product.created_at|date:"d/m/Y" }}</strong></div>
+      </div>
+
+      {% if product.description %}
+        <h3>Description</h3>
+        <p class="muted">{{ product.description|linebreaksbr }}</p>
+      {% endif %}
+
+      <div class="actions mt-3">
+        {% if user.is_authenticated %}
+          {% if user.role == 'ACHETEUR' and product.in_stock and product.producer != user %}
+            <a href="{% url 'orders:create' product.pk %}" class="btn btn-primary">Commander ce produit</a>
+          {% endif %}
+          {% if user == product.producer or user.is_superuser %}
+            <a href="{% url 'products:update' product.pk %}" class="btn btn-outline">Modifier</a>
+            <a href="{% url 'products:delete' product.pk %}" class="btn btn-danger">Supprimer</a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary">Se connecter pour commander</a>
+        {% endif %}
+        <a href="{% url 'products:list' %}" class="btn btn-outline">Retour au catalogue</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

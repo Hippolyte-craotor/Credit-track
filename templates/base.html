@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AgriConnect{% endblock %} | AgriConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar container">
+      <a class="brand" href="{% url 'home' %}">
+        <span class="brand-mark">A</span>
+        <span class="brand-text">Agri<span>Connect</span></span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Ouvrir le menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-menu" id="navMenu">
+        <a href="{% url 'home' %}" class="nav-link">Accueil</a>
+        <a href="{% url 'products:list' %}" class="nav-link">Produits</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard:home' %}" class="nav-link">Tableau de bord</a>
+          <a href="{% url 'orders:list' %}" class="nav-link">Commandes</a>
+          {% if user.role == 'PRODUCTEUR' or user.is_superuser %}
+            <a href="{% url 'products:create' %}" class="nav-link nav-link-accent">Publier</a>
+          {% endif %}
+          <div class="nav-user">
+            <a href="{% url 'accounts:profile' %}" class="nav-link user-chip">{{ user.first_name|default:user.username }}</a>
+            <a href="{% url 'accounts:logout' %}" class="btn btn-outline btn-sm">Déconnexion</a>
+          </div>
+        {% else %}
+          <div class="nav-user">
+            <a href="{% url 'accounts:login' %}" class="nav-link">Connexion</a>
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Créer un compte</a>
+          </div>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    {% if messages %}
+      <div class="container messages-container">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand footer-brand"><span class="brand-mark">A</span><span class="brand-text">Agri<span>Connect</span></span></div>
+        <p>La plateforme qui connecte les producteurs, acheteurs et transporteurs agricoles.</p>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <a href="{% url 'products:list' %}">Catalogue</a>
+        <a href="{% url 'accounts:register' %}">S'inscrire</a>
+        <a href="{% url 'accounts:login' %}">Se connecter</a>
+      </div>
+      <div>
+        <h4>Pour qui ?</h4>
+        <p>Producteurs • Acheteurs • Transporteurs</p>
+        <p class="footer-note">Conçu pour le marché togolais et africain.</p>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© {% now "Y" %} AgriConnect. Tous droits réservés.</span>
+    </div>
+  </footer>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

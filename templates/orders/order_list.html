@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Commandes{% endblock %}
+{% block content %}
+<div class="container section-sm">
+  <div class="page-header">
+    <div>
+      <h1>Commandes</h1>
+      <p>Suivez l'état de vos commandes et de vos livraisons.</p>
+    </div>
+  </div>
+
+  <form class="filters" method="get">
+    <div class="filters-grid" style="grid-template-columns: 1fr 1fr auto;">
+      <div class="form-group">
+        <label for="status">Statut</label>
+        <select name="status" id="status" class="form-control form-select">
+          <option value="">Tous les statuts</option>
+          {% for val, label in statuses %}
+            <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div></div>
+      <div class="form-group"><button type="submit" class="btn btn-primary">Filtrer</button></div>
+    </div>
+  </form>
+
+  {% if orders %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Produit</th>
+            <th>Acheteur</th>
+            <th>Producteur</th>
+            <th>Total</th>
+            <th>Statut</th>
+            <th>Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+            <tr>
+              <td>{{ order.id }}</td>
+              <td><strong>{{ order.product.name }}</strong><div class="muted">{{ order.quantity }} × {{ order.unit_price|floatformat:0 }} FCFA</div></td>
+              <td>{{ order.buyer.get_full_name|default:order.buyer.username }}</td>
+              <td>{{ order.producer.get_full_name|default:order.producer.username }}</td>
+              <td><strong>{{ order.total_price|floatformat:0 }} FCFA</strong></td>
+              <td>
+                {% if order.status == 'EN_ATTENTE' %}<span class="badge badge-yellow">En attente</span>
+                {% elif order.status == 'CONFIRMEE' %}<span class="badge badge-blue">Confirmée</span>
+                {% elif order.status == 'EN_LIVRAISON' %}<span class="badge badge-green">En livraison</span>
+                {% elif order.status == 'LIVREE' %}<span class="badge badge-green">Livrée</span>
+                {% elif order.status == 'ANNULEE' %}<span class="badge badge-red">Annulée</span>
+                {% endif %}
+              </td>
+              <td>{{ order.created_at|date:"d/m/Y" }}</td>
+              <td><a href="{% url 'orders:detail' order.pk %}" class="btn btn-sm btn-outline">Voir</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">
+      <div class="empty-icon">C</div>
+      <h3>Aucune commande</h3>
+      <p>Les commandes apparaîtront ici dès qu'elles seront créées.</p>
+      <a href="{% url 'products:list' %}" class="btn btn-primary">Parcourir les produits</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

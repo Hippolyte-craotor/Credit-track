@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="container section-sm">
+  <div class="page-header">
+    <div>
+      <h1>Bonjour, {{ user.first_name|default:user.username }}</h1>
+      <p>Suivez vos commandes et découvrez de nouveaux produits.</p>
+    </div>
+    <a href="{% url 'products:list' %}" class="btn btn-primary">Parcourir les produits</a>
+  </div>
+
+  <div class="grid grid-3 mb-3">
+    <div class="stat-card"><div class="stat-label">Mes commandes</div><div class="stat-value">{{ orders_count }}</div></div>
+    <div class="stat-card"><div class="stat-label">En attente</div><div class="stat-value">{{ pending_orders_count }}</div></div>
+    <div class="stat-card"><div class="stat-label">Total dépensé</div><div class="stat-value sm">{{ total_spent|floatformat:0 }} <small style="font-size:.7em;color:var(--muted)">FCFA</small></div></div>
+  </div>
+
+  <div class="flex-between mb-2"><h2>Mes commandes récentes</h2><a href="{% url 'orders:list' %}" class="btn btn-sm btn-outline">Voir tout</a></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Produit</th><th>Producteur</th><th>Total</th><th>Statut</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for order in my_orders %}
+          <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.product.name }}</td>
+            <td>{{ order.producer.get_full_name|default:order.producer.username }}</td>
+            <td>{{ order.total_price|floatformat:0 }} FCFA</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>{{ order.created_at|date:"d/m/Y" }}</td>
+            <td><a href="{% url 'orders:detail' order.pk %}" class="btn btn-sm btn-outline">Voir</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="muted">Vous n'avez pas encore passé de commande.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

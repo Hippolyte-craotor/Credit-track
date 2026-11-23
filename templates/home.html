@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Accueil{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Plateforme agricole togolaise</span>
+      <h1>Connectez la récolte au marché, simplement.</h1>
+      <p>AgriConnect aide les producteurs à vendre leurs produits, les acheteurs à trouver des fournisseurs fiables, et les transporteurs à proposer leurs services de livraison.</p>
+      <div class="hero-actions">
+        <a href="{% url 'products:list' %}" class="btn btn-primary">Voir les produits</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard:home' %}" class="btn btn-outline">Mon tableau de bord</a>
+        {% else %}
+          <a href="{% url 'accounts:register' %}" class="btn btn-outline">Créer un compte</a>
+        {% endif %}
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><strong>{{ stats.products }}+</strong><span>Produits disponibles</span></div>
+        <div class="hero-stat"><strong>{{ stats.producers }}+</strong><span>Producteurs actifs</span></div>
+        <div class="hero-stat"><strong>3</strong><span>Rôles connectés</span></div>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <h3>Comment ça marche</h3>
+      <div class="hero-card-item">
+        <div class="hero-icon">1</div>
+        <div><h4>Publiez ou recherchez</h4><p>Les producteurs publient leurs récoltes, les acheteurs trouvent ce qu'il leur faut.</p></div>
+      </div>
+      <div class="hero-card-item">
+        <div class="hero-icon">2</div>
+        <div><h4>Commandez en confiance</h4><p>Passez commande, suivez le statut et gardez une trace claire des transactions.</p></div>
+      </div>
+      <div class="hero-card-item">
+        <div class="hero-icon">3</div>
+        <div><h4>Livrez efficacement</h4><p>Les transporteurs prennent en charge la livraison pour rapprocher l'offre et la demande.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h2>Produits récents</h2>
+        <p>Découvrez les dernières offres publiées par nos producteurs.</p>
+      </div>
+      <a href="{% url 'products:list' %}" class="btn btn-outline">Tout voir</a>
+    </div>
+    {% if products %}
+      <div class="grid grid-4">
+        {% for product in products %}
+          <article class="card">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            {% else %}
+              <div class="product-placeholder">{{ product.name|slice:":1"|upper }}</div>
+            {% endif %}
+            <div class="card-body">
+              <div class="card-meta">{{ product.get_category_display }} • {{ product.location }}</div>
+              <h3 class="card-title">{{ product.name }}</h3>
+              <div class="price">{{ product.price|floatformat:0 }} FCFA <small>/ {{ product.get_unit_display }}</small></div>
+            </div>
+            <div class="card-footer">
+              <span class="badge badge-green">{{ product.quantity }} {{ product.get_unit_display }}</span>
+              <a href="{% url 'products:detail' product.pk %}" class="btn btn-sm btn-outline">Voir</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">
+        <div class="empty-icon">P</div>
+        <h3>Aucun produit pour le moment</h3>
+        <p>Les premiers produits publiés par les producteurs apparaîtront ici.</p>
+        {% if user.is_authenticated and user.role == 'PRODUCTEUR' %}
+          <a href="{% url 'products:create' %}" class="btn btn-primary">Publier un produit</a>
+        {% else %}
+          <a href="{% url 'accounts:register' %}" class="btn btn-primary">Rejoindre AgriConnect</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="text-center mb-3">
+      <h2>Conçu pour chaque acteur</h2>
+      <p class="muted">Un espace simple et adapté au rôle de chacun.</p>
+    </div>
+    <div class="grid grid-3">
+      <div class="card"><div class="card-body"><div class="stat-icon">P</div><h3>Producteurs</h3><p class="muted mb-0">Publiez vos récoltes, fixez vos prix et recevez des commandes directement.</p></div></div>
+      <div class="card"><div class="card-body"><div class="stat-icon">A</div><h3>Acheteurs</h3><p class="muted mb-0">Trouvez des produits agricoles par région, comparez les offres et commandez facilement.</p></div></div>
+      <div class="card"><div class="card-body"><div class="stat-icon">T</div><h3>Transporteurs</h3><p class="muted mb-0">Proposez vos services et assurez la livraison entre producteurs et acheteurs.</p></div></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Supprimer le produit{% endblock %}
+{% block content %}
+<div class="container section-sm">
+  <div class="auth-wrap">
+    <div class="form-card">
+      <h1>Supprimer le produit</h1>
+      <p class="muted">Êtes-vous sûr de vouloir supprimer <strong>{{ product.name }}</strong> ? Cette action est définitive.</p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="actions">
+          <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+          <a href="{% url 'products:detail' product.pk %}" class="btn btn-outline">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

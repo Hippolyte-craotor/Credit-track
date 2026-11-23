@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Commande #{{ order.id }}{% endblock %}
+{% block content %}
+<div class="container section-sm">
+  <div class="breadcrumb"><a href="{% url 'orders:list' %}">Commandes</a> / Commande #{{ order.id }}</div>
+  <div class="page-header">
+    <div>
+      <h1>Commande #{{ order.id }}</h1>
+      <p>Passée le {{ order.created_at|date:"d/m/Y à H:i" }}</p>
+    </div>
+    <div>
+      {% if order.status == 'EN_ATTENTE' %}<span class="badge badge-yellow">En attente</span>
+      {% elif order.status == 'CONFIRMEE' %}<span class="badge badge-blue">Confirmée</span>
+      {% elif order.status == 'EN_LIVRAISON' %}<span class="badge badge-green">En livraison</span>
+      {% elif order.status == 'LIVREE' %}<span class="badge badge-green">Livrée</span>
+      {% elif order.status == 'ANNULEE' %}<span class="badge badge-red">Annulée</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="align-items:start;">
+    <div class="detail-panel">
+      <h3>Détails de la commande</h3>
+      <div class="detail-meta" style="border-top:0;padding-top:0;margin-top:1rem;">
+        <div class="detail-meta-item"><span>Produit</span><strong><a href="{% url 'products:detail' order.product.pk %}">{{ order.product.name }}</a></strong></div>
+        <div class="detail-meta-item"><span>Quantité</span><strong>{{ order.quantity }} {{ order.product.get_unit_display }}</strong></div>
+        <div class="detail-meta-item"><span>Prix unitaire</span><strong>{{ order.unit_price|floatformat:0 }} FCFA</strong></div>
+        <div class="detail-meta-item"><span>Total</span><strong>{{ order.total_price|floatformat:0 }} FCFA</strong></div>
+        <div class="detail-meta-item"><span>Acheteur</span><strong>{{ order.buyer.get_full_name|default:order.buyer.username }}</strong></div>
+        <div class="detail-meta-item"><span>Producteur</span><strong>{{ order.producer.get_full_name|default:order.producer.username }}</strong></div>
+        <div class="detail-meta-item"><span>Adresse de livraison</span><strong>{{ order.delivery_address }}</strong></div>
+        <div class="detail-meta-item"><span>Transporteur</span><strong>{% if order.transporter %}{{ order.transporter.get_full_name|default:order.transporter.username }}{% else %}Non assigné{% endif %}</strong></div>
+      </div>
+      {% if order.note %}
+        <h3>Note</h3>
+        <p class="muted mb-0">{{ order.note|linebreaksbr }}</p>
+      {% endif %}
+    </div>
+
+    <div class="detail-panel">
+      <h3>Suivi du statut</h3>
+      <p class="muted">Statut actuel : <strong>{{ order.get_status_display }}</strong></p>
+      <div class="mb-2">
+        <div class="flex" style="gap:0.5rem;flex-wrap:wrap;">
+          <span class="badge {% if order.status == 'EN_ATTENTE' %}badge-yellow{% else %}badge-gray{% endif %}">En attente</span>
+          <span class="badge {% if order.status == 'CONFIRMEE' %}badge-blue{% else %}badge-gray{% endif %}">Confirmée</span>
+          <span class="badge {% if order.status == 'EN_LIVRAISON' %}badge-green{% else %}badge-gray{% endif %}">En livraison</span>
+          <span class="badge {% if order.status == 'LIVREE' %}badge-green{% else %}badge-gray{% endif %}">Livrée</span>
+        </div>
+      </div>
+      {% if can_update_status and status_form %}
+        <form method="post" action="{% url 'orders:update_status' order.pk %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="{{ status_form.status.id_for_label }}">Mettre à jour le statut</label>
+            {{ status_form.status }}
+          </div>
+          <button type="submit" class="btn btn-primary">Mettre à jour</button>
+        </form>
+      {% else %}
+        <p class="muted mb-0">Aucune action de statut disponible pour vous sur cette commande.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

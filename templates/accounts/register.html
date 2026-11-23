@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Inscription{% endblock %}
+{% block content %}
+<div class="container section-sm">
+  <div class="auth-wrap" style="max-width:720px;">
+    <div class="form-card">
+      <div class="auth-header">
+        <h1>Créer un compte</h1>
+        <p>Rejoignez AgriConnect en tant que producteur, acheteur ou transporteur.</p>
+      </div>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-error">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_first_name">Prénom</label>
+            {{ form.first_name }}
+            {% for e in form.first_name.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="form-group">
+            <label for="id_last_name">Nom</label>
+            {{ form.last_name }}
+            {% for e in form.last_name.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_username">Nom d'utilisateur</label>
+            {{ form.username }}
+            {% for e in form.username.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="form-group">
+            <label for="id_email">Adresse e-mail</label>
+            {{ form.email }}
+            {% for e in form.email.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_phone">Téléphone</label>
+            {{ form.phone }}
+            {% for e in form.phone.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="form-group">
+            <label for="id_city">Ville / Région</label>
+            {{ form.city }}
+            {% for e in form.city.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="id_address">Adresse</label>
+          {{ form.address }}
+          {% for e in form.address.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="form-group">
+          <label for="id_role">Je suis</label>
+          {{ form.role }}
+          {% for e in form.role.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_password1">Mot de passe</label>
+            {{ form.password1 }}
+            {% for e in form.password1.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+            {% if form.password1.help_text %}<span class="form-help">{{ form.password1.help_text|safe }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_password2">Confirmer le mot de passe</label>
+            {{ form.password2 }}
+            {% for e in form.password2.errors %}<div class="form-errors">{{ e }}</div>{% endfor %}
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Créer mon compte</button>
+      </form>
+      <p class="text-center mt-2 muted">Déjà inscrit ? <a href="{% url 'accounts:login' %}"><strong>Se connecter</strong></a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
